@@ -1,0 +1,332 @@
+"use client";
+import React, { useState, useEffect } from "react";
+import { 
+  FaHospital, 
+  FaShoppingCart, 
+  FaCar, 
+  FaUniversity, 
+  FaRocket, 
+  FaIndustry 
+} from 'react-icons/fa';
+
+export default function WhoUsesAnnotation() {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [windowWidth, setWindowWidth] = useState(
+    typeof window !== "undefined" ? window.innerWidth : 0
+  );
+  const [isHovered, setIsHovered] = useState(false);
+  const [hasHydrated, setHasHydrated] = useState(false);
+
+  const cards = [
+    {
+      title: "Healthcare Providers",
+      text: "For medical imaging, diagnostics, and patient record analysis.",
+      Icon: FaHospital,
+      gradient: "from-secondary/80 to-secondary/60",
+    },
+    {
+      title: "E-commerce & Retail Companies",
+      text: "To tag products, track customer sentiment, and personalize shopping experiences.",
+      Icon: FaShoppingCart,
+      gradient: "from-secondary/70 to-secondary/50",
+    },
+    {
+      title: "Autonomous Vehicle Developers",
+      text: "To train self-driving cars with video and image annotation for objects, pedestrians, and road signs.",
+      Icon: FaCar,
+      gradient: "from-secondary/60 to-secondary/40",
+    },
+    {
+      title: "Financial Institutions",
+      text: "For fraud detection, document processing, and compliance monitoring.",
+      Icon: FaUniversity,
+      gradient: "from-secondary/80 to-secondary/60",
+    },
+    {
+      title: "Technology & AI Startups",
+      text: "To build smarter apps, chatbots, and recommendation systems.",
+      Icon: FaRocket,
+      gradient: "from-secondary/70 to-secondary/50",
+    },
+    {
+      title: "Manufacturing & Robotics",
+      text: "For predictive maintenance, quality control, and machine vision systems.",
+      Icon: FaIndustry,
+      gradient: "from-secondary/90 to-secondary/70",
+    },
+  ];
+
+  // Update windowWidth on resize
+  useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  const nextSlide = () => setCurrentIndex((prev) => (prev + 1) % cards.length);
+  const prevSlide = () =>
+    setCurrentIndex((prev) => (prev === 0 ? cards.length - 1 : prev - 1));
+
+  // Autoplay: advance every 4s when not hovered
+  useEffect(() => {
+    if (!isHovered) {
+      const id = setInterval(nextSlide, 4000);
+      return () => clearInterval(id);
+    }
+  }, [isHovered]);
+
+  // Determine cards per view and paging
+  const getCardsPerView = () => {
+    if (windowWidth >= 1280) return 3;
+    if (windowWidth >= 768) return 2;
+    return 1;
+  };
+  const cardsPerView = getCardsPerView();
+  const slideCount = Math.ceil(cards.length / cardsPerView);
+  const currentPage = Math.floor(currentIndex / cardsPerView);
+
+  // Set hasHydrated to true after the first render
+  useEffect(() => {
+    setHasHydrated(true);
+  }, []);
+
+  return (
+    <div className="relative bg-secondary min-h-screen overflow-hidden py-20 px-4 sm:px-6 lg:px-20">
+      {/* Background Decorative Elements */}
+      <div className="absolute inset-0 opacity-10">
+        <div className="absolute top-20 left-20 w-40 h-40 bg-secondary/20 rounded-full"></div>
+        <div className="absolute top-1/3 right-24 w-24 h-24 bg-secondary/15 rounded-full"></div>
+        <div className="absolute bottom-40 left-1/3 w-48 h-48 bg-secondary/25 rounded-full"></div>
+        <div className="absolute top-2/3 right-1/3 w-32 h-32 bg-secondary/12 rounded-full"></div>
+      </div>
+
+      {/* Floating Dots */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-28 left-16 w-2 h-2 bg-secondary rounded-full animate-pulse"></div>
+        <div className="absolute top-48 right-20 w-2 h-2 bg-white/60 rounded-full animate-bounce"></div>
+        <div className="absolute bottom-56 left-1/4 w-3 h-3 bg-secondary/80 rounded-full animate-ping"></div>
+        <div className="absolute top-3/4 right-4 w-1 h-1 bg-white/40 rounded-full animate-pulse"></div>
+      </div>
+
+      <div className="max-w-7xl mx-auto relative z-10">
+        {/* Header Section */}
+        <div className="text-center mb-16">
+          <div className="inline-flex items-center border border-secondary/30 bg-secondary/10 backdrop-blur-sm text-primary px-6 py-3 rounded-full text-sm font-medium mb-8">
+            <span className="w-2 h-2 bg-secondary rounded-full mr-2 animate-pulse"></span>
+            Industry Applications
+          </div>
+          <h2 className="text-5xl font-bold text-primary mb-6">
+            Who Uses <span className="text-primary">Annotation Services?</span>
+          </h2>
+          <div className="w-20 h-1 bg-gradient-to-r from-secondary to-transparent rounded-full mx-auto mb-6"></div>
+          <p className="text-xl text-primary leading-relaxed max-w-4xl mx-auto mb-16">
+            Annotation services are widely used across industries that depend on artificial intelligence, machine learning, and automation.
+          </p>
+        </div>
+
+        {/* Carousel Container - MOVED HERE */}
+        <div
+          className="relative overflow-hidden mb-20"
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
+        >
+          {/* Carousel strip */}
+          <div
+            className="flex transition-transform duration-700 ease-in-out"
+            style={{
+              transform: `translateX(-${(currentIndex * 100) / cardsPerView}%)`,
+            }}
+          >
+            {cards.map((card, idx) => {
+              // Make cards 2,4,6 (i.e. idx 1,3,5) smaller:
+              const isSmall = (idx + 1) % 2 === 0;
+              const transformClasses = isSmall
+                ? "scale-90 translate-y-4"
+                : "scale-100";
+
+              const { Icon } = card;
+
+              return (
+                <div
+                  key={`${card.title}-${idx}`}
+                  className="flex-shrink-0 w-full md:w-1/2 lg:w-1/3 px-4"
+                >
+                  <div
+                    className={`bg-secondary/70 backdrop-blur-xl rounded-3xl border border-secondary/30 shadow-2xl overflow-hidden h-full transition-all duration-500 hover:bg-secondary/80 hover:-translate-y-2 hover:shadow-3xl transform ${transformClasses} group`}
+                  >
+                    {/* Header with React icon and gradient */}
+                    <div className={`bg-gradient-to-r ${card.gradient} p-8 relative overflow-hidden`}>
+                      <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent"></div>
+                      <div className="relative z-10 flex items-center">
+                        <div className="w-14 h-14 bg-white/20 rounded-2xl flex items-center justify-center mr-4">
+                          <Icon className="text-2xl text-primary" />
+                        </div>
+                        <h3 className="text-primary text-xl font-bold leading-tight flex-1">
+                          {card.title}
+                        </h3>
+                      </div>
+                      {/* Decorative corner elements */}
+                      <div className="absolute top-4 right-4 w-8 h-8 border-t-2 border-r-2 border-white/30 rounded-tr-2xl"></div>
+                    </div>
+
+                    {/* Body */}
+                    <div className="p-8 text-primary text-sm leading-relaxed flex-1 relative">
+                      <p className="group-hover:text-primary transition-colors duration-300">
+                        {card.text}
+                      </p>
+                      
+                      {/* Progress indicator */}
+                      <div className="mt-6 flex items-center">
+                        <div className="flex-1 h-1 bg-white/10 rounded-full overflow-hidden">
+                          <div 
+                            className="h-full bg-gradient-to-r from-secondary to-secondary/80 rounded-full transition-all duration-1000"
+                            style={{ width: `${((idx + 1) / cards.length) * 100}%` }}
+                          ></div>
+                        </div>
+                        <span className="ml-3 text-primary font-bold text-xs">
+                          {String(idx + 1).padStart(2, '0')}
+                        </span>
+                      </div>
+
+                      {/* Decorative bottom corner */}
+                      <div className="absolute bottom-4 left-4 w-8 h-8 border-b-2 border-l-2 border-secondary/30 rounded-bl-2xl"></div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Navigation Controls */}
+        <div className="flex items-center justify-center gap-8 mb-20">
+          {/* Left Arrow */}
+          <button
+            onClick={prevSlide}
+            className="w-12 h-12 rounded-full bg-gradient-to-r from-secondary to-secondary/80 shadow-xl flex items-center justify-center text-primary hover:scale-110 hover:shadow-secondary/25 transition-all duration-300 group"
+            aria-label="Previous slide"
+          >
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              className="group-hover:-translate-x-1 transition-transform duration-300"
+            >
+              <path
+                d="M15 19l-7-7 7-7"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </button>
+
+          {/* Dots */}
+          {hasHydrated && (
+            <div className="flex gap-3">
+              {Array.from({ length: slideCount }).map((_, page) => (
+                <button
+                  key={page}
+                  onClick={() => setCurrentIndex(page * cardsPerView)}
+                  className={`rounded-full transition-all duration-300 ${
+                    page === currentPage
+                      ? "bg-secondary w-8 h-3 shadow-lg"
+                      : "bg-secondary/30 w-3 h-3 hover:bg-secondary/50"
+                  }`}
+                  aria-label={`Go to slide ${page + 1}`}
+                />
+              ))}
+            </div>
+          )}
+
+          {/* Right Arrow */}
+          <button
+            onClick={nextSlide}
+            className="w-12 h-12 rounded-full bg-gradient-to-r from-secondary to-secondary/80 shadow-xl flex items-center justify-center text-primary hover:scale-110 hover:shadow-secondary/25 transition-all duration-300 group"
+            aria-label="Next slide"
+          >
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              className="group-hover:translate-x-1 transition-transform duration-300"
+            >
+              <path
+                d="M9 5l7 7-7 7"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </button>
+        </div>
+
+        {/* Services Section - MOVED BELOW CAROUSEL */}
+        <div className="mb-16">
+          <div className="text-center mb-12">
+            <h3 className="text-3xl font-bold text-primary mb-6">
+              Our Comprehensive <span className="text-primary">Annotation Services</span>
+            </h3>
+            <p className="text-lg text-primary">We provide tailored solutions to match the needs of different industries:</p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="bg-secondary/70 backdrop-blur-xl rounded-2xl border border-secondary/30 shadow-2xl p-6 text-center group hover:bg-secondary/80 transition-all duration-300">
+              <div className="w-12 h-12 bg-secondary/20 rounded-xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                <span className="text-primary font-bold">IMG</span>
+              </div>
+              <h4 className="text-lg font-bold text-primary mb-2">Image Annotation</h4>
+              <p className="text-sm text-primary">Bounding boxes, polygons, segmentation, and object tagging.</p>
+            </div>
+            
+            <div className="bg-secondary/70 backdrop-blur-xl rounded-2xl border border-secondary/30 shadow-2xl p-6 text-center group hover:bg-secondary/80 transition-all duration-300">
+              <div className="w-12 h-12 bg-secondary/20 rounded-xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                <span className="text-primary font-bold">TXT</span>
+              </div>
+              <h4 className="text-lg font-bold text-primary mb-2">Text Annotation</h4>
+              <p className="text-sm text-primary">Entity recognition, intent labelling, sentiment analysis.</p>
+            </div>
+            
+            <div className="bg-secondary/70 backdrop-blur-xl rounded-2xl border border-secondary/30 shadow-2xl p-6 text-center group hover:bg-secondary/80 transition-all duration-300">
+              <div className="w-12 h-12 bg-secondary/20 rounded-xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                <span className="text-primary font-bold">AUD</span>
+              </div>
+              <h4 className="text-lg font-bold text-primary mb-2">Audio Annotation</h4>
+              <p className="text-sm text-primary">Speech tagging, transcription, speaker identification.</p>
+            </div>
+            
+            <div className="bg-secondary/70 backdrop-blur-xl rounded-2xl border border-secondary/30 shadow-2xl p-6 text-center group hover:bg-secondary/80 transition-all duration-300">
+              <div className="w-12 h-12 bg-secondary/20 rounded-xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+                <span className="text-primary font-bold">VID</span>
+              </div>
+              <h4 className="text-lg font-bold text-primary mb-2">Video Annotation</h4>
+              <p className="text-sm text-primary">Frame-by-frame tracking, activity recognition, motion tagging.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Bottom Decoration */}
+      <div className="absolute bottom-0 right-0 opacity-20">
+        <div className="w-40 h-20 bg-gradient-to-l from-secondary/30 to-transparent rounded-tl-full"></div>
+      </div>
+
+      {/* Animation Styles */}
+      <style jsx>{`
+        @keyframes pulse {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.5; }
+        }
+        .animate-pulse {
+          animation: pulse 2s infinite;
+        }
+      `}</style>
+    </div>
+  );
+}
