@@ -17,41 +17,39 @@ pipeline {
             }
         }
 
+	stage('Merge to Destination Branch') {
+    steps {
+        withCredentials([usernamePassword(
+            credentialsId: 'github-access-token',
+            usernameVariable: 'GIT_USERNAME',
+            passwordVariable: 'GIT_TOKEN'
+        )]) {
 
-        stage('Merge to Destination Branch') {
-            steps {
-                withCredentials([usernamePassword(
-                    credentialsId: 'github-access-token',
-                    usernameVariable: 'GIT_USERNAME',
-                    passwordVariable: 'GIT_TOKEN'
-                )]) {
+            sh '''
+            git config user.name "jenkins"
+            git config user.email "jenkins@example.com"
 
-                    sh '''
-                    git config user.name "jenkins"
-                    git config user.email "jenkins@example.com"
+            git remote set-url origin https://${GIT_USERNAME}:${GIT_TOKEN}@github.com/kishoresuzil1005/jenkins-dev.git
 
-                    # Set authenticated remote
-                    git remote set-url origin https://${GIT_USERNAME}:${GIT_TOKEN}@github.com/kishoresuzil1005/jenkins-dev.git
+            git fetch origin
 
-                    # Fetch latest changes
-                    git fetch origin
+            # ✅ create main if not exists
+            git show-ref --verify --quiet refs/heads/main || git checkout -b main
 
-                    # Checkout destination branch (main)
-                    git checkout ${DEST_BRANCH} || git checkout -b ${DEST_BRANCH}
+            # ✅ push main if not exists remotely
+            git push origin main || true
 
-                    # Pull latest changes to avoid non-fast-forward error
-                    git pull origin ${DEST_BRANCH} --rebase || true
+            # ✅ pull latest
+            git pull origin main --rebase || true
 
-                    # Merge source branch (dev)
-                    git merge origin/${SOURCE_BRANCH}
+            # ✅ FIX: allow first-time merge
+            git merge origin/dev --allow-unrelated-histories -m "merge dev to main"
 
-                    # Push to remote
-                    git push origin ${DEST_BRANCH}
-                    '''
-                }
-            }
+            git push origin main
+            '''
         }
     }
+}
 
     post {
         success {
