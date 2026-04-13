@@ -17,7 +17,14 @@ pipeline {
             }
         }
 
-       
+        stage('Install Dependencies') {
+            steps {
+                sh '''
+                echo "Installing dependencies..."
+                npm install
+                '''
+            }
+        }
 
         stage('Merge to Destination Branch') {
             steps {
@@ -31,19 +38,22 @@ pipeline {
                     git config user.name "jenkins"
                     git config user.email "jenkins@example.com"
 
-                    # Set remote with credentials (secure way)
+                    # Set authenticated remote
                     git remote set-url origin https://${GIT_USERNAME}:${GIT_TOKEN}@github.com/kishoresuzil1005/CRUD.git
 
-                    # Fetch latest branches
+                    # Fetch latest changes
                     git fetch origin
 
-                    # Checkout destination branch
+                    # Checkout destination branch (main)
                     git checkout ${DEST_BRANCH} || git checkout -b ${DEST_BRANCH}
 
-                    # Merge source branch
+                    # Pull latest changes to avoid non-fast-forward error
+                    git pull origin ${DEST_BRANCH} --rebase || true
+
+                    # Merge source branch (dev)
                     git merge origin/${SOURCE_BRANCH}
 
-                    # Push changes
+                    # Push to remote
                     git push origin ${DEST_BRANCH}
                     '''
                 }
