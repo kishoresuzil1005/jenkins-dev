@@ -17,44 +17,36 @@ pipeline {
             }
         }
 
-        stage('Merge to Destination Branch') {
-            steps {
-                withCredentials([usernamePassword(
-                    credentialsId: 'github-access-token',
-                    usernameVariable: 'GIT_USERNAME',
-                    passwordVariable: 'GIT_TOKEN'
-                )]) {
+        stage('Sync Dev to Main') {
+    steps {
+        withCredentials([usernamePassword(
+            credentialsId: 'github-access-token',
+            usernameVariable: 'GIT_USERNAME',
+            passwordVariable: 'GIT_TOKEN'
+        )]) {
 
-                    sh '''
-                    echo "Starting merge process..."
+            sh '''
+            echo "Syncing dev → main (NO MERGE)"
 
-                    git config user.name "jenkins"
-                    git config user.email "jenkins@example.com"
+            git config user.name "jenkins"
+            git config user.email "jenkins@example.com"
 
-                    git remote set-url origin https://${GIT_USERNAME}:${GIT_TOKEN}@github.com/kishoresuzil1005/jenkins-dev.git
+            git remote set-url origin https://${GIT_USERNAME}:${GIT_TOKEN}@github.com/kishoresuzil1005/jenkins-dev.git
 
-                    git fetch origin
+            git fetch origin
 
-                    # Create main branch if not exists
-                    git checkout main || git checkout -b main
+            # Checkout dev
+            git checkout dev
 
-                    # Push main if not exists remotely
-                    git push origin main || true
+            # Create/reset main from dev
+            git checkout -B main
 
-                    # Pull latest main (if exists)
-                    git pull origin main --rebase || true
-
-                    # Merge dev → main (FIRST TIME FIX)
-                    git merge origin/dev --allow-unrelated-histories -m "Merging dev into main"
-
-                    # Push final changes
-                    git push origin main --force
-                    '''
-                }
-            }
+            # Force push (overwrite main)
+            git push origin main --force
+            '''
         }
     }
-
+}
     post {
         success {
             echo "✅ Pipeline completed successfully"
