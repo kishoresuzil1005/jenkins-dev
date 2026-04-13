@@ -4,7 +4,7 @@ pipeline {
     environment {
         SOURCE_BRANCH = "dev"
         DEST_BRANCH = "main"
-        REPO_URL = "https://github.com/kishoresuzil1005/CRUD.git"
+        REPO_URL = "https://github.com/kishoresuzil1005/jenkins-dev.git"
     }
 
     stages {
