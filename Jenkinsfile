@@ -17,14 +17,6 @@ pipeline {
             }
         }
 
-        stage('Install Dependencies') {
-            steps {
-                sh '''
-                echo "Installing dependencies..."
-                npm install
-                '''
-            }
-        }
 
         stage('Merge to Destination Branch') {
             steps {
