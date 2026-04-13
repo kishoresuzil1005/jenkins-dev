@@ -31,7 +31,7 @@ pipeline {
                     git config user.email "jenkins@example.com"
 
                     # Set authenticated remote
-                    git remote set-url origin https://${GIT_USERNAME}:${GIT_TOKEN}@github.com/kishoresuzil1005/CRUD.git
+                    git remote set-url origin https://${GIT_USERNAME}:${GIT_TOKEN}@github.com/kishoresuzil1005/jenkins-dev.git
 
                     # Fetch latest changes
                     git fetch origin
