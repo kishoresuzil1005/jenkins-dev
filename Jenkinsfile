@@ -17,17 +17,7 @@ pipeline {
             }
         }
 
-        stage('Build') {
-            steps {
-                sh '''
-                echo "Installing dependencies..."
-                npm install
-
-                echo "Building project..."
-                npm run build
-                '''
-            }
-        }
+       
 
         stage('Merge to Destination Branch') {
             steps {
