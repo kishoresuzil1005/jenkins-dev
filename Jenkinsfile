@@ -17,39 +17,43 @@ pipeline {
             }
         }
 
-	stage('Merge to Destination Branch') {
-    steps {
-        withCredentials([usernamePassword(
-            credentialsId: 'github-access-token',
-            usernameVariable: 'GIT_USERNAME',
-            passwordVariable: 'GIT_TOKEN'
-        )]) {
+        stage('Merge to Destination Branch') {
+            steps {
+                withCredentials([usernamePassword(
+                    credentialsId: 'github-access-token',
+                    usernameVariable: 'GIT_USERNAME',
+                    passwordVariable: 'GIT_TOKEN'
+                )]) {
 
-            sh '''
-            git config user.name "jenkins"
-            git config user.email "jenkins@example.com"
+                    sh '''
+                    echo "Starting merge process..."
 
-            git remote set-url origin https://${GIT_USERNAME}:${GIT_TOKEN}@github.com/kishoresuzil1005/jenkins-dev.git
+                    git config user.name "jenkins"
+                    git config user.email "jenkins@example.com"
 
-            git fetch origin
+                    git remote set-url origin https://${GIT_USERNAME}:${GIT_TOKEN}@github.com/kishoresuzil1005/jenkins-dev.git
 
-            # ✅ create main if not exists
-            git show-ref --verify --quiet refs/heads/main || git checkout -b main
+                    git fetch origin
 
-            # ✅ push main if not exists remotely
-            git push origin main || true
+                    # Create main branch if not exists
+                    git checkout main || git checkout -b main
 
-            # ✅ pull latest
-            git pull origin main --rebase || true
+                    # Push main if not exists remotely
+                    git push origin main || true
 
-            # ✅ FIX: allow first-time merge
-            git merge origin/dev --allow-unrelated-histories -m "merge dev to main"
+                    # Pull latest main (if exists)
+                    git pull origin main --rebase || true
 
-            git push origin main
-            '''
+                    # Merge dev → main (FIRST TIME FIX)
+                    git merge origin/dev --allow-unrelated-histories -m "Merging dev into main"
+
+                    # Push final changes
+                    git push origin main
+                    '''
+                }
+            }
         }
     }
-}
 
     post {
         success {
@@ -60,4 +64,3 @@ pipeline {
         }
     }
 }
-echo "updated"
