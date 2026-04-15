@@ -18,36 +18,37 @@ pipeline {
         }
 
         stage('Sync Dev to Main') {
-    steps {
-        withCredentials([usernamePassword(
-            credentialsId: 'github-access-token',
-            usernameVariable: 'GIT_USERNAME',
-            passwordVariable: 'GIT_TOKEN'
-        )]) {
+            steps {
+                withCredentials([usernamePassword(
+                    credentialsId: 'github-access-token',
+                    usernameVariable: 'GIT_USERNAME',
+                    passwordVariable: 'GIT_TOKEN'
+                )]) {
 
-            sh '''
-            echo "Syncing dev → main (NO MERGE)"
+                    sh '''
+                    echo "Syncing ${SOURCE_BRANCH} → ${DEST_BRANCH}"
 
-            git config user.name "jenkins"
-            git config user.email "jenkins@example.com"
+                    git config user.name "jenkins"
+                    git config user.email "jenkins@example.com"
 
-            git remote set-url origin https://${GIT_USERNAME}:${GIT_TOKEN}@github.com/kishoresuzil1005/jenkins-dev.git
+                    git remote set-url origin https://${GIT_USERNAME}:${GIT_TOKEN}@github.com/kishoresuzil1005/jenkins-dev.git
 
-            git fetch origin
+                    git fetch origin
 
-            # Checkout dev
-            git checkout dev
+                    # ✅ Use SOURCE_BRANCH variable
+                    git checkout ${SOURCE_BRANCH}
 
-            # Create/reset main from dev
-            git checkout -B main
+                    # ✅ Use DEST_BRANCH variable
+                    git checkout -B ${DEST_BRANCH}
 
-            # Force push (overwrite main)
-            git push origin main --force
-            '''
+                    # ✅ Push using variable
+                    git push origin ${DEST_BRANCH} --force
+                    '''
+                }
+            }
         }
     }
-}
-}
+
     post {
         success {
             echo "✅ Pipeline completed successfully"
